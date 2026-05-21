@@ -57,7 +57,7 @@ INNER JOIN tabela_referencia tr
 -- =====================================
 
 SELECT 
-    i.descricao_inconsistencia AS motivo_inconsistencia,
+    i.tipo_inconsistencia AS motivo_inconsistencia,
     GROUP_CONCAT(DISTINCT s.id_solicitacao) AS solicitacoes_afetadas,
     COUNT(i.id_inconsistencia) AS quantidade_repeticoes,
     SUM(i.custo_interno) AS impacto_financeiro,
@@ -69,88 +69,106 @@ JOIN
 JOIN 
     resultado r ON s.id_solicitacao = r.id_solicitacao
 GROUP BY 
-    i.descricao_inconsistencia
+    i.tipo_inconsistencia
 ORDER BY 
     impacto_financeiro DESC;
 
 -- =====================================
--- CONSULTA 3 TAT
--- TURNAROUND TIME
+-- CONSULTA 3
+-- TAT COM P50 E P90
 -- =====================================
 
+WITH tempos AS (
+
+    SELECT
+
+        e.id_exame,
+
+        e.descricao_exame AS exame,
+
+        s.canal,
+
+        TIMESTAMPDIFF(
+            MINUTE,
+            s.timestamp_solicitacao,
+            s.timestamp_liberacao
+        ) AS tempo_total,
+
+        ROW_NUMBER() OVER (
+
+            PARTITION BY
+                e.id_exame,
+                s.canal
+
+            ORDER BY
+                TIMESTAMPDIFF(
+                    MINUTE,
+                    s.timestamp_solicitacao,
+                    s.timestamp_liberacao
+                )
+
+        ) AS linha,
+
+        COUNT(*) OVER (
+
+            PARTITION BY
+                e.id_exame,
+                s.canal
+
+        ) AS total_linhas
+
+    FROM solicitacao s
+
+    INNER JOIN solicitacao_exame se
+        ON s.id_solicitacao = se.id_solicitacao
+
+    INNER JOIN exame e
+        ON se.id_exame = e.id_exame
+
+    WHERE
+        s.timestamp_solicitacao IS NOT NULL
+
+        AND s.timestamp_liberacao IS NOT NULL
+)
+
 SELECT
-    e.id_exame,
 
-    e.descricao_exame AS exame,
+    exame,
 
-    s.canal,
+    canal,
 
-    ROUND(
-        AVG(
-            TIMESTAMPDIFF(
-                MINUTE,
-                s.timestamp_solicitacao,
-                s.timestamp_coleta
-            )
-        ),
-        2
-    ) AS tempo_medio_coleta,
+    ROUND(AVG(tempo_total),2)
+        AS media_tempo,
 
-    ROUND(
-        AVG(
-            TIMESTAMPDIFF(
-                MINUTE,
-                s.timestamp_coleta,
-                s.timestamp_processamento
-            )
-        ),
-        2
-    ) AS tempo_medio_processamento,
+    MAX(
+        CASE
 
-    ROUND(
-        AVG(
-            TIMESTAMPDIFF(
-                MINUTE,
-                s.timestamp_processamento,
-                s.timestamp_validacao
-            )
-        ),
-        2
-    ) AS tempo_medio_validacao,
+            WHEN linha >= total_linhas * 0.50
 
-    ROUND(
-        AVG(
-            TIMESTAMPDIFF(
-                MINUTE,
-                s.timestamp_validacao,
-                s.timestamp_liberacao
-            )
-        ),
-        2
-    ) AS tempo_medio_liberacao
+            THEN tempo_total
 
-FROM solicitacao s
+        END
+    ) AS p50,
 
-INNER JOIN solicitacao_exame se
-    ON s.id_solicitacao = se.id_solicitacao
+    MAX(
+        CASE
 
-INNER JOIN exame e
-    ON se.id_exame = e.id_exame
+            WHEN linha >= total_linhas * 0.90
 
-WHERE s.timestamp_solicitacao IS NOT NULL
-    AND s.timestamp_coleta IS NOT NULL
-    AND s.timestamp_processamento IS NOT NULL
-    AND s.timestamp_validacao IS NOT NULL
-    AND s.timestamp_liberacao IS NOT NULL
+            THEN tempo_total
+
+        END
+    ) AS p90
+
+FROM tempos
 
 GROUP BY
-    e.id_exame,
-    e.descricao_exame,
-    s.canal
+    exame,
+    canal
 
 ORDER BY
-    e.descricao_exame,
-    s.canal;
+    exame,
+    canal;
     
 -- =====================================
 -- CONSULTA 4
@@ -233,3 +251,63 @@ CROSS JOIN (
 
 ORDER BY
     dados.total_pontos DESC;
+
+-- =====================================
+-- CONSULTA 5
+-- FATURAMENTO CONSOLIDADO
+-- POR HOSPITAL
+-- =====================================
+
+SELECT
+
+    h.razao_social AS hospital,
+
+    e.descricao_exame AS exame,
+
+    COUNT(r.id_resultado) AS quantidade_exames,
+
+    ce.valor_exame AS valor_unitario,
+
+    SUM(ce.valor_exame) AS valor_total,
+
+    CASE
+
+        WHEN ce.valor_exame IS NULL
+            THEN 'SEM CONTRATO'
+
+        ELSE 'OK'
+
+    END AS auditoria
+
+FROM resultado r
+
+INNER JOIN solicitacao s
+    ON r.id_solicitacao = s.id_solicitacao
+
+INNER JOIN hosp_parceiro h
+    ON s.id_hospital = h.id_hospital
+
+INNER JOIN exame e
+    ON r.id_exame = e.id_exame
+
+INNER JOIN contrato c
+    ON h.id_hospital = c.id_hospital
+
+LEFT JOIN contrato_exame ce
+    ON c.id_contrato = ce.id_contrato
+
+    AND e.id_exame = ce.id_exame
+
+WHERE
+    s.timestamp_solicitacao
+    BETWEEN c.data_inicio_vigencia
+    AND c.data_fim_vigencia
+
+GROUP BY
+
+    h.razao_social,
+    e.descricao_exame,
+    ce.valor_exame
+
+ORDER BY
+    valor_total DESC;
