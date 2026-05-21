@@ -151,3 +151,85 @@ GROUP BY
 ORDER BY
     e.descricao_exame,
     s.canal;
+    
+-- =====================================
+-- CONSULTA 4
+-- PRODUTIVIDADE E SOBRECARGA
+-- =====================================
+
+SELECT
+
+    dados.biomedico,
+
+    dados.qtd_exames,
+
+    dados.total_pontos,
+
+    ROUND(est.media_geral,2) AS media_geral,
+
+    ROUND(est.desvio_padrao,2) AS desvio_padrao,
+
+    CASE
+
+        WHEN dados.total_pontos >
+            (est.media_geral + (2 * est.desvio_padrao))
+
+        THEN 'SOBRECARGA'
+
+        ELSE 'NORMAL'
+
+    END AS situacao_carga
+
+FROM (
+
+    SELECT
+
+        b.id_biomedico,
+
+        b.nome AS biomedico,
+
+        COUNT(r.id_resultado) AS qtd_exames,
+
+        SUM(e.pontos_complexidade) AS total_pontos
+
+    FROM resultado r
+
+    INNER JOIN biomedico b
+        ON r.id_biomedico = b.id_biomedico
+
+    INNER JOIN exame e
+        ON r.id_exame = e.id_exame
+
+    GROUP BY
+        b.id_biomedico,
+        b.nome
+
+) AS dados
+
+CROSS JOIN (
+
+    SELECT
+
+        AVG(sub.total_pontos) AS media_geral,
+
+        STDDEV(sub.total_pontos) AS desvio_padrao
+
+    FROM (
+
+        SELECT
+
+            SUM(e.pontos_complexidade) AS total_pontos
+
+        FROM resultado r
+
+        INNER JOIN exame e
+            ON r.id_exame = e.id_exame
+
+        GROUP BY r.id_biomedico
+
+    ) AS sub
+
+) AS est
+
+ORDER BY
+    dados.total_pontos DESC;
