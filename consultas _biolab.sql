@@ -55,3 +55,20 @@ INNER JOIN tabela_referencia tr
 -- CONSULTA 2
 -- Taxa de Repetição e Custo Estimado
 -- =====================================
+
+SELECT 
+    i.descricao_inconsistencia AS motivo_inconsistencia,
+    GROUP_CONCAT(DISTINCT s.id_solicitacao) AS solicitacoes_afetadas,
+    COUNT(i.id_inconsistencia) AS quantidade_repeticoes,
+    SUM(i.custo_interno) AS impacto_financeiro,
+    ROUND(AVG(i.custo_interno), 2) AS custo_medio
+FROM 
+    inconsistencia i
+JOIN 
+    solicitacao s ON i.id_solicitacao = s.id_solicitacao
+JOIN 
+    resultado r ON s.id_solicitacao = r.id_solicitacao
+GROUP BY 
+    i.descricao_inconsistencia
+ORDER BY 
+    impacto_financeiro DESC;
