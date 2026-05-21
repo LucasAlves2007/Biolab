@@ -1,36 +1,67 @@
-USE biolab;
+USE Biolab;
 
-INSERT INTO paciente (data_nasc, genero, nome) VALUES
-('1998-05-10','M','Luiz Santos'),
-('2001-08-22','F','Amanda Silva'),
-('1985-02-14','M','Carlos Henrique'),
-('1979-11-03','F','Fernanda Souza'),
-('2012-06-18','M','Pedro Alves'),
-('1995-01-27','F','Juliana Lima'),
-('1968-09-09','M','Roberto Costa'),
-('2007-04-15','F','Larissa Martins'),
-('1992-12-30','M','Thiago Melo'),
-('1988-07-01','F','Mariana Gomes'),
-('1955-03-12','F','Helena Moura'),
-('2015-09-21','M','Gabriel Nunes'),
-('1999-11-08','F','Renata Araujo'),
-('1972-04-30','M','Joao Batista'),
-('1983-01-17','F','Tatiane Rocha'),
-('2004-06-25','M','Vinicius Prado'),
-('1961-12-11','F','Marcia Ribeiro'),
-('2010-08-05','M','Leonardo Pires');
+-- =====================================
+-- PACIENTE
+-- =====================================
 
-INSERT INTO hosp_parceiro (razao_social, cnpj) VALUES
+INSERT INTO paciente (
+    nome,
+    data_nasc,
+    genero
+) VALUES
+('Luiz Santos','1998-05-10','M'),
+('Amanda Silva','2001-08-22','F'),
+('Carlos Henrique','1985-02-14','M'),
+('Fernanda Souza','1979-11-03','F'),
+('Pedro Alves','2012-06-18','M'),
+('Juliana Lima','1995-01-27','F'),
+('Roberto Costa','1968-09-09','M'),
+('Larissa Martins','2007-04-15','F'),
+('Thiago Melo','1992-12-30','M'),
+('Mariana Gomes','1988-07-01','F'),
+('Helena Moura','1955-03-12','F'),
+('Gabriel Nunes','2015-09-21','M'),
+('Renata Araujo','1999-11-08','F'),
+('Joao Batista','1972-04-30','M'),
+('Tatiane Rocha','1983-01-17','F'),
+('Vinicius Prado','2004-06-25','M'),
+('Marcia Ribeiro','1961-12-11','F'),
+('Leonardo Pires','2010-08-05','M');
+
+-- =====================================
+-- HOSPITAL PARCEIRO
+-- =====================================
+
+INSERT INTO hosp_parceiro (
+    razao_social,
+    cnpj
+) VALUES
 ('Hospital Santa Helena','12345678000101'),
 ('Hospital Vida','22345678000102'),
 ('Hospital Central','32345678000103');
 
-INSERT INTO biomedico (registro_profissional, assinatura_digital, nome) VALUES
-('CRBM1001','ASS001','Marina Oliveira'),
-('CRBM1002','ASS002','Ricardo Lima'),
-('CRBM1003','ASS003','Camila Ferreira');
+-- =====================================
+-- BIOMEDICO
+-- =====================================
 
-INSERT INTO exame (descricao_exame, pontos_complexidade, preparo) VALUES
+INSERT INTO biomedico (
+    nome,
+    registro_profissional,
+    assinatura_digital
+) VALUES
+('Marina Oliveira','CRBM1001','ASS001'),
+('Ricardo Lima','CRBM1002','ASS002'),
+('Camila Ferreira','CRBM1003','ASS003');
+
+-- =====================================
+-- EXAME
+-- =====================================
+
+INSERT INTO exame (
+    descricao_exame,
+    pontos_complexidade,
+    preparo
+) VALUES
 ('Hemograma Completo',1,'Jejum de 4 horas'),
 ('Glicose',1,'Jejum de 8 horas'),
 ('Colesterol Total',2,'Jejum de 12 horas'),
@@ -38,14 +69,31 @@ INSERT INTO exame (descricao_exame, pontos_complexidade, preparo) VALUES
 ('PCR',3,'Sem preparo'),
 ('Painel Hepático',5,'Jejum de 8 horas');
 
-INSERT INTO painel (nome_agrupamento) VALUES
+-- =====================================
+-- PAINEL
+-- =====================================
+
+INSERT INTO painel (
+    nome_painel
+) VALUES
 ('Painel Hepático'),
 ('Painel Hormonal');
 
-INSERT INTO item_painel (id_exame, id_painel) VALUES
+-- =====================================
+-- ITEM_PAINEL
+-- =====================================
+
+INSERT INTO item_painel (
+    id_exame,
+    id_painel
+) VALUES
 (3,1),
 (5,1),
 (4,2);
+
+-- =====================================
+-- CONTRATO
+-- =====================================
 
 INSERT INTO contrato (
     data_inicio_vigencia,
@@ -56,6 +104,10 @@ INSERT INTO contrato (
 ('2025-01-01','2025-12-31',50000.00,1),
 ('2025-01-01','2025-12-31',70000.00,2),
 ('2025-01-01','2025-12-31',45000.00,3);
+
+-- =====================================
+-- CONTRATO_EXAME
+-- =====================================
 
 INSERT INTO contrato_exame (
     id_contrato,
@@ -71,29 +123,50 @@ INSERT INTO contrato_exame (
 (3,2,20.00),
 (3,6,120.00);
 
+-- =====================================
+-- SOLICITACAO
+-- =====================================
+
 INSERT INTO solicitacao (
-    timestamp_coleta,
-    timestamp_liberacao,
     timestamp_solicitacao,
-    canal,
+    timestamp_coleta,
     timestamp_processamento,
     timestamp_validacao,
+    timestamp_liberacao,
+    canal,
     id_paciente,
     id_hospital
 ) VALUES
-('2025-05-01 08:00:00','2025-05-01 16:00:00','2025-05-01 07:30:00','hospital','2025-05-01 10:00:00','2025-05-01 14:00:00',1,1),
-('2025-05-02 09:00:00','2025-05-02 18:00:00','2025-05-02 08:15:00','domicilio','2025-05-02 11:00:00','2025-05-02 16:00:00',2,NULL),
-('2025-05-03 07:45:00','2025-05-03 15:30:00','2025-05-03 07:00:00','unidade','2025-05-03 09:30:00','2025-05-03 13:00:00',3,NULL),
-('2025-05-04 08:20:00','2025-05-04 17:40:00','2025-05-04 07:50:00','hospital','2025-05-04 11:30:00','2025-05-04 15:20:00',4,2),
-('2025-05-05 06:50:00','2025-05-05 14:00:00','2025-05-05 06:20:00','domicilio','2025-05-05 08:30:00','2025-05-05 12:10:00',5,NULL),
-('2025-05-06 08:10:00','2025-05-06 17:20:00','2025-05-06 07:30:00','hospital','2025-05-06 11:00:00','2025-05-06 15:00:00',6,1),
-('2025-05-07 07:40:00','2025-05-07 13:00:00','2025-05-07 07:00:00','unidade','2025-05-07 08:40:00','2025-05-07 11:00:00',7,NULL),
-('2025-05-08 09:30:00','2025-05-08 20:00:00','2025-05-08 08:40:00','domicilio','2025-05-08 13:00:00','2025-05-08 17:40:00',8,NULL),
-('2025-05-09 06:50:00','2025-05-09 14:30:00','2025-05-09 06:10:00','hospital','2025-05-09 09:10:00','2025-05-09 12:30:00',9,2),
-('2025-05-10 08:00:00','2025-05-10 18:10:00','2025-05-10 07:20:00','domicilio','2025-05-10 12:00:00','2025-05-10 16:00:00',10,NULL),
-('2025-05-11 07:10:00','2025-05-11 15:00:00','2025-05-11 06:40:00','unidade','2025-05-11 09:00:00','2025-05-11 13:00:00',11,NULL),
-('2025-05-12 08:50:00','2025-05-12 19:30:00','2025-05-12 08:00:00','hospital','2025-05-12 12:20:00','2025-05-12 17:10:00',12,3),
-('2025-05-13 07:30:00','2025-05-13 16:20:00','2025-05-13 07:00:00','unidade','2025-05-13 10:10:00','2025-05-13 14:20:00',13,NULL);
+
+('2025-05-01 07:30:00','2025-05-01 08:00:00','2025-05-01 10:00:00','2025-05-01 14:00:00','2025-05-01 16:00:00','hospital',1,1),
+
+('2025-05-02 08:15:00','2025-05-02 09:00:00','2025-05-02 11:00:00','2025-05-02 16:00:00','2025-05-02 18:00:00','domicilio',2,NULL),
+
+('2025-05-03 07:00:00','2025-05-03 07:45:00','2025-05-03 09:30:00','2025-05-03 13:00:00','2025-05-03 15:30:00','unidade',3,NULL),
+
+('2025-05-04 07:50:00','2025-05-04 08:20:00','2025-05-04 11:30:00','2025-05-04 15:20:00','2025-05-04 17:40:00','hospital',4,2),
+
+('2025-05-05 06:20:00','2025-05-05 06:50:00','2025-05-05 08:30:00','2025-05-05 12:10:00','2025-05-05 14:00:00','domicilio',5,NULL),
+
+('2025-05-06 07:30:00','2025-05-06 08:10:00','2025-05-06 11:00:00','2025-05-06 15:00:00','2025-05-06 17:20:00','hospital',6,1),
+
+('2025-05-07 07:00:00','2025-05-07 07:40:00','2025-05-07 08:40:00','2025-05-07 11:00:00','2025-05-07 13:00:00','unidade',7,NULL),
+
+('2025-05-08 08:40:00','2025-05-08 09:30:00','2025-05-08 13:00:00','2025-05-08 17:40:00','2025-05-08 20:00:00','domicilio',8,NULL),
+
+('2025-05-09 06:10:00','2025-05-09 06:50:00','2025-05-09 09:10:00','2025-05-09 12:30:00','2025-05-09 14:30:00','hospital',9,2),
+
+('2025-05-10 07:20:00','2025-05-10 08:00:00','2025-05-10 12:00:00','2025-05-10 16:00:00','2025-05-10 18:10:00','domicilio',10,NULL),
+
+('2025-05-11 06:40:00','2025-05-11 07:10:00','2025-05-11 09:00:00','2025-05-11 13:00:00','2025-05-11 15:00:00','unidade',11,NULL),
+
+('2025-05-12 08:00:00','2025-05-12 08:50:00','2025-05-12 12:20:00','2025-05-12 17:10:00','2025-05-12 19:30:00','hospital',12,3),
+
+('2025-05-13 07:00:00','2025-05-13 07:30:00','2025-05-13 10:10:00','2025-05-13 14:20:00','2025-05-13 16:20:00','unidade',13,NULL);
+
+-- =====================================
+-- SOLICITACAO_EXAME
+-- =====================================
 
 INSERT INTO solicitacao_exame (
     id_exame,
@@ -123,35 +196,53 @@ INSERT INTO solicitacao_exame (
 (2,13),
 (5,13);
 
+-- =====================================
+-- RESULTADO
+-- =====================================
+
 INSERT INTO resultado (
     situacao_resultado,
     valor_obtido,
-    flag_referencia,
     id_exame,
     id_biomedico,
     id_solicitacao
 ) VALUES
-('normal',13.5000,'normal',1,1,1),
-('alto',125.0000,'alto',2,1,1),
-('normal',180.0000,'normal',3,2,2),
-('baixo',0.3000,'baixo',4,2,2),
-('alto',15.7000,'alto',5,3,3),
-('normal',45.0000,'normal',6,3,3),
-('alto',140.0000,'alto',2,1,4),
-('baixo',10.5000,'baixo',1,1,4),
-('normal',92.0000,'normal',2,2,5),
-('alto',260.0000,'alto',3,2,5),
-('baixo',0.2000,'baixo',4,3,6),
-('normal',3.2000,'normal',4,3,6),
-('alto',18.4000,'alto',5,1,7),
-('normal',47.8000,'normal',6,2,7),
-('baixo',68.0000,'baixo',2,1,8),
-('alto',210.0000,'alto',3,3,8),
-('normal',14.2000,'normal',1,2,9),
-('alto',5.6000,'alto',4,1,9),
-('normal',11.9000,'normal',1,3,10),
-('alto',20.3000,'alto',5,2,10),
-('normal',89.0000,'normal',2,3,11);
+
+('normal',13.5000,1,1,1),
+('alto',125.0000,2,1,1),
+
+('normal',180.0000,3,2,2),
+('baixo',0.3000,4,2,2),
+
+('alto',15.7000,5,3,3),
+('normal',45.0000,6,3,3),
+
+('alto',140.0000,2,1,4),
+('baixo',10.5000,1,1,4),
+
+('normal',92.0000,2,2,5),
+('alto',260.0000,3,2,5),
+
+('baixo',0.2000,4,3,6),
+('normal',3.2000,4,3,6),
+
+('alto',18.4000,5,1,7),
+('normal',47.8000,6,2,7),
+
+('baixo',68.0000,2,1,8),
+('alto',210.0000,3,3,8),
+
+('normal',14.2000,1,2,9),
+('alto',5.6000,4,1,9),
+
+('normal',11.9000,1,3,10),
+('alto',20.3000,5,2,10),
+
+('normal',89.0000,2,3,11);
+
+-- =====================================
+-- TABELA_REFERENCIA
+-- =====================================
 
 INSERT INTO tabela_referencia (
     idade_min,
@@ -161,22 +252,32 @@ INSERT INTO tabela_referencia (
     valor_referencia_max,
     id_exame
 ) VALUES
+
 (0,12,'M',11.0000,14.0000,1),
 (13,60,'M',13.0000,17.0000,1),
 (13,60,'F',12.0000,16.0000,1),
-(0,120,'M',70.0000,99.0000,2),
-(0,120,'F',70.0000,99.0000,2),
-(0,120,'M',0.4000,4.0000,4),
-(0,120,'F',0.4000,4.0000,4),
 (0,12,'F',11.0000,14.5000,1),
 (61,120,'M',12.5000,16.5000,1),
 (61,120,'F',11.5000,15.5000,1),
+
+(0,120,'M',70.0000,99.0000,2),
+(0,120,'F',70.0000,99.0000,2),
+
 (13,60,'M',150.0000,200.0000,3),
 (13,60,'F',150.0000,200.0000,3),
+
+(0,120,'M',0.4000,4.0000,4),
+(0,120,'F',0.4000,4.0000,4),
+
 (0,120,'M',0.5000,5.0000,5),
 (0,120,'F',0.5000,5.0000,5),
+
 (0,120,'M',35.0000,50.0000,6),
 (0,120,'F',35.0000,50.0000,6);
+
+-- =====================================
+-- INCONSISTENCIA
+-- =====================================
 
 INSERT INTO inconsistencia (
     data_ocorrencia,
@@ -185,15 +286,27 @@ INSERT INTO inconsistencia (
     tipo_inconsistencia,
     id_solicitacao
 ) VALUES
+
 ('2025-05-02 10:00:00',15.00,'Amostra insuficiente','amostra insuficiente',2),
+
 ('2025-05-03 11:20:00',25.00,'Hemólise detectada','hemolise',3),
+
 ('2025-05-04 12:00:00',40.00,'Falha no equipamento','falha equipamento',4),
+
 ('2025-05-05 08:00:00',18.00,'Erro de identificação','erro identificacao',5),
+
 ('2025-05-06 10:30:00',22.00,'Recoleta por amostra coagulada','amostra insuficiente',6),
+
 ('2025-05-07 09:20:00',35.00,'Erro no cadastro do paciente','erro identificacao',7),
+
 ('2025-05-08 14:10:00',55.00,'Falha do analisador bioquimico','falha equipamento',8),
+
 ('2025-05-09 11:00:00',18.00,'Material hemolisado','hemolise',9),
+
 ('2025-05-10 13:40:00',27.00,'Volume inadequado da amostra','amostra insuficiente',10),
+
 ('2025-05-11 08:50:00',42.00,'Equipamento indisponivel','falha equipamento',11),
+
 ('2025-05-12 15:10:00',20.00,'Identificacao divergente','erro identificacao',12),
+
 ('2025-05-13 12:00:00',30.00,'Nova coleta solicitada','amostra insuficiente',13);

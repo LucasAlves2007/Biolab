@@ -5,14 +5,16 @@ USE biolab;
 -- RESULTADOS FORA DA REFERÊNCIA
 -- =====================================
 
-SELECT 
+SELECT
+    r.id_resultado,
+
     p.nome AS paciente,
 
     p.genero,
 
     TIMESTAMPDIFF(YEAR, p.data_nasc, CURDATE()) AS idade,
 
-    e.descricao AS exame,
+    e.descricao_exame AS exame,
 
     r.valor_obtido,
 
@@ -32,23 +34,22 @@ SELECT
 
 FROM resultado r
 
-INNER JOIN exame e
-    ON r.id_exame = e.id_exame
-
 INNER JOIN solicitacao s
     ON r.id_solicitacao = s.id_solicitacao
 
 INNER JOIN paciente p
     ON s.id_paciente = p.id_paciente
 
+INNER JOIN exame e
+    ON r.id_exame = e.id_exame
+
 INNER JOIN tabela_referencia tr
-    ON e.id_exame = tr.id_exame
+    ON r.id_exame = tr.id_exame
 
-WHERE
-    TIMESTAMPDIFF(YEAR, p.data_nasc, CURDATE())
-    BETWEEN tr.idade_min AND tr.idade_max
+    AND p.genero = tr.sexo
 
-AND p.genero = tr.sexo;
+    AND TIMESTAMPDIFF(YEAR, p.data_nasc, CURDATE())
+        BETWEEN tr.idade_min AND tr.idade_max;
 
 -- =====================================
 -- CONSULTA 2
