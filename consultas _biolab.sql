@@ -72,3 +72,82 @@ GROUP BY
     i.descricao_inconsistencia
 ORDER BY 
     impacto_financeiro DESC;
+
+-- =====================================
+-- CONSULTA 3 TAT
+-- TURNAROUND TIME
+-- =====================================
+
+SELECT
+    e.id_exame,
+
+    e.descricao_exame AS exame,
+
+    s.canal,
+
+    ROUND(
+        AVG(
+            TIMESTAMPDIFF(
+                MINUTE,
+                s.timestamp_solicitacao,
+                s.timestamp_coleta
+            )
+        ),
+        2
+    ) AS tempo_medio_coleta,
+
+    ROUND(
+        AVG(
+            TIMESTAMPDIFF(
+                MINUTE,
+                s.timestamp_coleta,
+                s.timestamp_processamento
+            )
+        ),
+        2
+    ) AS tempo_medio_processamento,
+
+    ROUND(
+        AVG(
+            TIMESTAMPDIFF(
+                MINUTE,
+                s.timestamp_processamento,
+                s.timestamp_validacao
+            )
+        ),
+        2
+    ) AS tempo_medio_validacao,
+
+    ROUND(
+        AVG(
+            TIMESTAMPDIFF(
+                MINUTE,
+                s.timestamp_validacao,
+                s.timestamp_liberacao
+            )
+        ),
+        2
+    ) AS tempo_medio_liberacao
+
+FROM solicitacao s
+
+INNER JOIN solicitacao_exame se
+    ON s.id_solicitacao = se.id_solicitacao
+
+INNER JOIN exame e
+    ON se.id_exame = e.id_exame
+
+WHERE s.timestamp_solicitacao IS NOT NULL
+    AND s.timestamp_coleta IS NOT NULL
+    AND s.timestamp_processamento IS NOT NULL
+    AND s.timestamp_validacao IS NOT NULL
+    AND s.timestamp_liberacao IS NOT NULL
+
+GROUP BY
+    e.id_exame,
+    e.descricao_exame,
+    s.canal
+
+ORDER BY
+    e.descricao_exame,
+    s.canal;
